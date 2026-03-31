@@ -15,15 +15,22 @@ export const useAgentStore = create((set) => ({
   ],
   isDebating: false,
   showLogs: false,
+  isAutonomous: true,
   addMessage: (msg) => set((state) => ({ messages: [...state.messages, msg] })),
   setThinking: (status) => set({ isThinking: status }),
   setActiveAgent: (agentKey) => set({ activeAgent: agentKey }),
-  addTasks: (newTasks) => set((state) => ({ tasks: [...state.tasks, ...newTasks] })),
+  addTasks: (newTasks) => set((state) => ({ 
+    tasks: [...state.tasks, ...newTasks.map(task => ({
+      ...task, 
+      id: `${task.id}-${Math.random().toString(36).substr(2, 9)}` // Guarantee unique React key
+    }))] 
+  })),
   reorderTasks: (newOrder) => set({ tasks: newOrder }),
   updateTaskStatus: (taskId, newStatus) => set((state) => ({
     tasks: state.tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t)
   })),
   logAction: (log) => set((state) => ({ agentLogs: [...state.agentLogs, log] })),
   setDebating: (status) => set({ isDebating: status }),
-  toggleLogs: () => set((state) => ({ showLogs: !state.showLogs }))
+  toggleLogs: () => set((state) => ({ showLogs: !state.showLogs })),
+  toggleAutonomous: () => set((state) => ({ isAutonomous: !state.isAutonomous }))
 }))

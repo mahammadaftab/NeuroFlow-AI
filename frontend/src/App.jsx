@@ -1,8 +1,14 @@
 import React from 'react'
 import GlassPanel from './components/common/GlassPanel'
 import AgentGraph from './components/Dashboard/AgentGraph'
-import WorkflowTimeline from './components/Dashboard/WorkflowTimeline'
+import DragDropPlanner from './components/Dashboard/DragDropPlanner'
+import CalendarWidget from './components/Dashboard/CalendarWidget'
 import ChatInterface from './components/Chat/ChatInterface'
+import MemoryViewer from './components/Features/MemoryViewer'
+import PredictiveInsights from './components/Features/PredictiveInsights'
+import AIDebateSystem from './components/Features/AIDebateSystem'
+import ExplainMyDay from './components/Features/ExplainMyDay'
+import AutoFollowUps from './components/Features/AutoFollowUps'
 import { Hexagon } from 'lucide-react'
 
 function App() {
@@ -30,22 +36,36 @@ function App() {
       </header>
 
       {/* Main Grid */}
-      <main className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-140px)]">
+      <main className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[calc(100vh-140px)] relative pb-10">
+        <AIDebateSystem />
         
-        {/* Left Column: Command & Orchestration */}
+        {/* Left Column: Command & Intelligence Data */}
         <div className="lg:col-span-8 flex flex-col gap-6">
-          <GlassPanel className="flex-none p-6">
-             <h2 className="text-lg font-semibold mb-4 text-gray-200">System Architecture Hook</h2>
-             <AgentGraph />
-          </GlassPanel>
           
-          <GlassPanel className="flex-1 overflow-y-auto">
-             <WorkflowTimeline />
-          </GlassPanel>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-none">
+             <div className="flex flex-col gap-6">
+                 <AgentGraph />
+                 <MemoryViewer />
+             </div>
+             <div className="flex flex-col gap-4">
+               <PredictiveInsights />
+               <ExplainMyDay />
+               <AutoFollowUps />
+             </div>
+          </div>
+          
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+             <GlassPanel className="p-4 flex-1">
+                <DragDropPlanner />
+             </GlassPanel>
+             <div className="flex-1">
+                <CalendarWidget />
+             </div>
+          </div>
         </div>
 
         {/* Right Column: Interaction */}
-        <div className="lg:col-span-4 h-full">
+        <div className="lg:col-span-4 h-[calc(100vh-140px)] sticky top-6">
            <ChatInterface />
         </div>
 

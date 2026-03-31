@@ -1,7 +1,9 @@
+from tools.builtin_tools import TOOLS_REGISTRY
+
 def executor_node(state: dict):
     """
     The Executor Agent:
-    Finds the first uncompleted step in the plan and executes it using tools.
+    Finds the first uncompleted step in the plan and executes it using tools based on the LLM's payload choice.
     """
     plan = state.get("plan", [])
     current_step = None
@@ -13,17 +15,30 @@ def executor_node(state: dict):
             break
             
     if not current_step:
-        return {"error": "No uncompleted steps found."}
+        return {"error": "No uncompleted steps found. Final synthesizer check failed."}
         
-    print(f"--> Executor Node executing step {current_step['id']}: {current_step['action']}")
+    action_name = current_step.get("action", "Unknown action")
+    tool_name = current_step.get("tool_name", "none")
+    tool_input = current_step.get("tool_input", {})
     
-    # MOCK EXECUTION logic
-    if current_step.get("tool_name") == "mock_tool":
-        result = f"Mock tool execution successful for input: {current_step.get('tool_input')}"
-    else:
-        result = "No tool needed, purely cognitive step."
+    print(f"--> Executor Node analyzing step {current_step['id']}: [{action_name}] -> Triggering Tool: [{tool_name}]")
+    
+    # LIVE EXECUTION LOGIC
+    result = "Standard cognitive step processed."
+    
+    if tool_name in TOOLS_REGISTRY:
+        try:
+            # We fetch the official @tool object and invoke it
+            live_tool = TOOLS_REGISTRY[tool_name]
+            result = live_tool.invoke(tool_input)
+            print(f"   => Live Tool Output: {result}")
+        except Exception as e:
+            result = f"Tool Execution Failed: {str(e)}"
+            print(f"   => Live Tool Error: {result}")
+    elif tool_name != "none":
+         result = f"Tool '{tool_name}' not found in registry."
         
-    # Mark step as completed in a new plan object
+    # Mark step as completed in a new plan object for LangGraph
     new_plan = []
     for step in plan:
         if step["id"] == current_step["id"]:
@@ -38,7 +53,7 @@ def executor_node(state: dict):
         "plan": new_plan,
         "actions_taken": [{
             "agent": "executor", 
-            "action": f"executed_step_{current_step['id']}", 
+            "action": f"executed_step_{current_step['id']}_{tool_name}", 
             "result": result
         }]
     }
